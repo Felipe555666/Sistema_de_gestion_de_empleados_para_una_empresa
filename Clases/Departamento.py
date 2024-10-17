@@ -1,6 +1,8 @@
-class Departamento:
-    def __init__(self,Id,Nombre,Telefono,Id_empleado):
-        self.__Id =Id
-        self.__Nombre =Nombre
-        self.__Telefono =Telefono
-        self.__Id_empleado =Id_empleado
+from Empleado import Empleado
+
+class Departamento(Empleado):
+    def __init__(self,Id_departamento,Nombre,Telefono,Id_empleado):
+        super().__init__(self, Id_empleado)
+        self._Id_departamento = Id_departamento
+        self._Nombre = Nombre
+        self._Telefono = Telefono

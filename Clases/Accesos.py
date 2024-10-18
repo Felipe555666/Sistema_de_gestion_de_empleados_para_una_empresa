@@ -6,4 +6,3 @@ class Accesos(modulos, tipoEmpleado):
         tipoEmpleado.__init__(self, Id_empleado)
         modulos.__init__(self, Id_modulo)
         self._Id_acceso = Id_acceso
-        

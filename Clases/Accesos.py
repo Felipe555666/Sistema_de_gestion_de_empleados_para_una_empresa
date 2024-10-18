@@ -5,5 +5,5 @@ class Accesos(modulos, tipoEmpleado):
     def __init__(self,Id_acceso,Id_modulo,Id_empleado):
         tipoEmpleado.__init__(self, Id_empleado)
         modulos.__init__(self, Id_modulo)
-        self.__Id_acceso = Id_acceso
+        self._Id_acceso = Id_acceso
         

@@ -1,5 +1,8 @@
-class proyectoEmpleado:
-    def __init__(self,Id,Id_proyecto,Id_empleado):
-        super().__init__(self, Id_proyecto)
-        self.__Id = Id
-        self.__Id_proyecto = Id_proyecto
+from Empleado import empleado
+from Proyecto import proyecto
+
+class proyectoEmpleado(empleado, proyecto):
+    def __init__(self,Id_pro_empleado,Id_proyecto,Id_empleado):
+        empleado.__init__(self, Id_empleado)
+        proyecto.__init__(self, Id_proyecto)
+        self._Id_pro_empleado = Id_pro_empleado

@@ -1,6 +1,8 @@
-class informe:
-    def __init__(self,Id,Nombre_informe,Fecha_creacion,Id_empleado,Ubicacion):
-        self.__Nombre_informe = Nombre_informe
-        self.__Fecha_creacion = Fecha_creacion
-        self.__Id_empleado = Id_empleado
-        self.__Ubicacion = Ubicacion
+from Empleado import empleado
+
+class informe(empleado):
+    def __init__(self,Id_informe,Nombre_informe,Fecha_creacion,Id_empleado):
+        super().__init__(self, Id_empleado)
+        self._Id_informe = Id_informe
+        self._Nombre_informe = Nombre_informe
+        self._Fecha_creacion = Fecha_creacion

@@ -1,9 +1,9 @@
-
+from cryptography.fernet import Fernet
 from datetime import datetime
 from Tipo_empleado import tipoEmpleado
 class empleado(tipoEmpleado):
     def __init__(self,Id_empleado,Id_tipo_empleado,Nombre,Direccion,Telefono,Correo,Fecha_inicio,Salario,Fecha_nac,Contrasena):
-        super().__init__(self, Id_tipo_empleado)
+        super().__init__(Id_tipo_empleado)
         self._Id_empleado = Id_empleado
         self.Nombre = Nombre
         self._Direccion = Direccion
@@ -13,6 +13,10 @@ class empleado(tipoEmpleado):
         self._Salario = Salario
         self._Fecha_nac = Fecha_nac
         self.__Contrasena = Contrasena
+        self.clave = Fernet.generate_key()
+        self.cipher_suite = Fernet(self.clave)
+        
+
         
     def validar_datos(self):
         # Asegura que el campo no este vacío
@@ -31,7 +35,7 @@ class empleado(tipoEmpleado):
     
     def validar_fechas(self):
 
-        formato_fecha = "%A-%M-%D" # el formato será Año-Mes-Dia por formato de datetime
+        formato_fecha = "%Y-%m-%d" # el formato será Año-Mes-Dia por formato de datetime
 
         #valida que el formato de la fecha de nacimiento este en el correcto
         try:
@@ -58,3 +62,10 @@ class empleado(tipoEmpleado):
         
         return True, "Las fechas son validas"
     
+    def encriptar_contrasena(self):
+        self.__Contrasena = self.cipher_suite.encrypt(self.__Contrasena.encode())
+        return self.__Contrasena
+    
+    def desencriptar_contrasena(self):
+        contrasena_desencriptar = self.cipher_suite.decrypt(self.__Contrasena).decode()
+        return contrasena_desencriptar

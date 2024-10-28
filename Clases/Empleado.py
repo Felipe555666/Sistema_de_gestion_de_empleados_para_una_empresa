@@ -1,8 +1,9 @@
 from cryptography.fernet import Fernet
 from datetime import datetime
 from Tipo_empleado import tipoEmpleado
+
 class empleado(tipoEmpleado):
-    def __init__(self,Id_empleado,Id_tipo_empleado,Nombre,Direccion,Telefono,Correo,Fecha_inicio,Salario,Fecha_nac,Contrasena):
+    def __init__(self,Id_empleado,Id_tipo_empleado,Nombre,Direccion,Telefono,Correo,Fecha_inicio,Salario,Fecha_nac,Contrasena,Estado_empleado):
         super().__init__(Id_tipo_empleado)
         self._Id_empleado = Id_empleado
         self.Nombre = Nombre
@@ -12,6 +13,7 @@ class empleado(tipoEmpleado):
         self._Fecha_inicio = Fecha_inicio
         self._Salario = Salario
         self._Fecha_nac = Fecha_nac
+        self._Estado_empleado = Estado_empleado
         self.__Contrasena = Contrasena
         self.clave = Fernet.generate_key()
         self.cipher_suite = Fernet(self.clave)
@@ -69,3 +71,20 @@ class empleado(tipoEmpleado):
     def desencriptar_contrasena(self):
         contrasena_desencriptar = self.cipher_suite.decrypt(self.__Contrasena).decode()
         return contrasena_desencriptar
+    
+    def registrar_empleado(self):
+        datos_validos, mensaje_datos = self.validar_datos()
+        if not datos_validos:
+            return False, f"Error en la validación de datos: {mensaje_datos}"
+        
+        fechas_validas, mensaje_fechas = self.validar_fechas()
+        if not fechas_validas:
+            return False, f"Error en la validación de fechas: {mensaje_fechas}"
+        
+        # Encriptar la contraseña antes de almacenar
+        self.encriptar_contrasena()
+        
+        # Aquí podrías agregar la lógica para almacenar el empleado en una base de datos o en otro almacenamiento.
+        # Por ahora, solo simularemos que el empleado fue registrado exitosamente.
+        
+        return True, f"Empleado {self.Nombre} registrado exitosamente."

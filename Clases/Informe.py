@@ -1,12 +1,13 @@
 from datetime import datetime
 from Empleado import empleado
 
-class informe(empleado):
-    def __init__(self,Id_informe,Nombre_informe,Fecha_creacion,Id_empleado):
+class informe():
+    def __init__(self,Id_informe,Nombre_informe,Fecha_creacion,Id_empleado,Estado_informe):
         super().__init__(self, Id_empleado)
         self._Id_informe = Id_informe
         self._Nombre_informe = Nombre_informe
         self._Fecha_creacion = Fecha_creacion
+        self._Estado_informe = Estado_informe
 
     def validar_fecha_creacion(self):
         formato_fecha = "%Y-%m-%d"  # Cambia el formato según tus necesidades
@@ -21,3 +22,5 @@ class informe(empleado):
             return False, "La fecha de creación no puede estar en el futuro."
 
         return True, "La fecha de creación es válida."
+    
+    

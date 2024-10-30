@@ -29,3 +29,9 @@ class registroTiempo(proyectoEmpleado):
             return True, f"Se han registrado {horas} horas correctamente"
         else:
             return False, mensaje
+
+    def obtener_total_horas(self):
+            return self._horas_trabajadas
+    
+    def obtener_registros(self):
+        return self._registros

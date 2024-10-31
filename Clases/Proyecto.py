@@ -1,129 +1,153 @@
 from datetime import datetime
+from mysql.connector import Error
+
 class proyecto:
-    def __init__(self,Id_proyecto,Nombre,Descripcion,Fecha_inicio,Fecha_fin):
-        self.__Id_proyecto = Id_proyecto
+    def __init__(self, Id_proyecto, Nombre, Descripcion, Fecha_inicio, Fecha_fin):
+        self._Id_proyecto = Id_proyecto
         self._Nombre = Nombre
         self._Descripcion = Descripcion
         self._Fecha_inicio = Fecha_inicio
         self._Fecha_fin = Fecha_fin
+
+    def validar_proyecto(self):
+        """Valida todos los datos del proyecto"""
+        try:
+            # Validar ID
+            if not isinstance(self._Id_proyecto, int) or self._Id_proyecto <= 0:
+                return False, "El ID del proyecto debe ser un número entero positivo"
+            
+            # Validar nombre
+            if not isinstance(self._Nombre, str) or not self._Nombre.strip():
+                return False, "El nombre del proyecto no puede estar vacío"
+            
+            # Validar descripción
+            if not isinstance(self._Descripcion, str) or not self._Descripcion.strip():
+                return False, "La descripción del proyecto no puede estar vacía"
+            
+            # Validar fechas
+            validacion_fechas, mensaje = self.validar_fechas()
+            if not validacion_fechas:
+                return False, mensaje
+            
+            return True, "Datos del proyecto válidos"
+        except Exception as e:
+            return False, f"Error en la validación del proyecto: {str(e)}"
     
     def validar_fechas(self):
-
+        """Valida las fechas del proyecto"""
         formato_fecha = "%Y-%m-%d"
-
         try:
+            # Convertir strings a objetos datetime
             fecha_inicio = datetime.strptime(self._Fecha_inicio, formato_fecha)
-        except ValueError:
-            return False, "La fecha de inicio no esta en el formato correcto"
-        
-        try:
             fecha_fin = datetime.strptime(self._Fecha_fin, formato_fecha)
-        except:
-            return False, "La fecha de fin no esta en el formato correcto"
-        
-        if fecha_inicio > fecha_fin:
-            return False, "La fecha de inicio no puede se posterior a la fecha fin"
-        
-        fecha_actual = datetime.now()
-        if fecha_inicio > fecha_actual or fecha_fin > fecha_actual:
-            return False, "Las fechas no puedes ir al futuro"
-        
-        return True, "las fechas son validas"
-    
-    
-    
-    # Método para crear un proyecto en la base de datos
+            fecha_actual = datetime.now()
+
+            # Validar que fecha_inicio sea anterior a fecha_fin
+            if fecha_inicio > fecha_fin:
+                return False, "La fecha de inicio no puede ser posterior a la fecha de fin"
+            
+            # Validar que las fechas no estén en el futuro
+            if fecha_inicio > fecha_actual or fecha_fin > fecha_actual:
+                return False, "Las fechas no pueden estar en el futuro"
+            
+            return True, "Las fechas son válidas"
+        except ValueError:
+            return False, "Las fechas deben estar en formato YYYY-MM-DD"
+        except Exception as e:
+            return False, f"Error en la validación de fechas: {str(e)}"
+
+    def obtener_informacion_proyecto(self):
+        """Retorna la información básica del proyecto"""
+        return {
+            'ID': self._Id_proyecto,
+            'Nombre': self._Nombre,
+            'Descripción': self._Descripcion,
+            'Fecha Inicio': self._Fecha_inicio,
+            'Fecha Fin': self._Fecha_fin
+        }
+
+    def actualizar_proyecto(self, nombre=None, descripcion=None, fecha_inicio=None, fecha_fin=None):
+        """Actualiza la información del proyecto"""
+        try:
+            if nombre:
+                self._Nombre = nombre
+            if descripcion:
+                self._Descripcion = descripcion
+            if fecha_inicio:
+                self._Fecha_inicio = fecha_inicio
+            if fecha_fin:
+                self._Fecha_fin = fecha_fin
+
+            # Validar los nuevos datos
+            validacion, mensaje = self.validar_proyecto()
+            if not validacion:
+                return False, mensaje
+
+            return True, "Proyecto actualizado correctamente"
+        except Exception as e:
+            return False, f"Error al actualizar el proyecto: {str(e)}"
+
+    def __str__(self):
+        """Representación en string del proyecto"""
+        return f"Proyecto: {self._Nombre} (ID: {self._Id_proyecto})"
+
+    # Métodos para la base de datos
     @classmethod
-    def crear_proyecto(cls, Id_proyecto, Nombre, Descripcion, Fecha_inicio, Fecha_fin):
-        conexion = obtener_conexion()
+    def crear_proyecto_bd(cls, conexion, proyecto):
+        """Crea un nuevo proyecto en la base de datos"""
         try:
             with conexion.cursor() as cursor:
-                sql = "INSERT INTO proyectos (Id_proyecto, Nombre, Descripcion, Fecha_inicio, Fecha_fin) VALUES (%s, %s, %s, %s, %s)"
-                cursor.execute(sql, (Id_proyecto, Nombre, Descripcion, Fecha_inicio, Fecha_fin))
+                sql = """INSERT INTO proyecto (id_proyecto, nombre, descripcion, 
+                        fecha_inicio, fecha_fin) VALUES (%s, %s, %s, %s, %s)"""
+                valores = (proyecto._Id_proyecto, proyecto._Nombre, 
+                          proyecto._Descripcion, proyecto._Fecha_inicio, 
+                          proyecto._Fecha_fin)
+                cursor.execute(sql, valores)
                 conexion.commit()
-            return f"Proyecto {Nombre} creado exitosamente."
+                return True, "Proyecto creado exitosamente"
         except Error as e:
-            return f"Error al crear el proyecto: {str(e)}"
-        finally:
-            conexion.close()
-    
-    # Método para leer un proyecto de la base de datos
+            return False, f"Error al crear el proyecto en la BD: {str(e)}"
+
     @classmethod
-    def leer_proyecto(cls, Id_proyecto):
-        conexion = obtener_conexion()
+    def obtener_proyecto_bd(cls, conexion, id_proyecto):
+        """Obtiene un proyecto de la base de datos por su ID"""
         try:
             with conexion.cursor(dictionary=True) as cursor:
-                sql = "SELECT * FROM proyectos WHERE Id_proyecto = %s"
-                cursor.execute(sql, (Id_proyecto,))
-                proyecto = cursor.fetchone()
-            return proyecto if proyecto else "Proyecto no encontrado."
+                sql = "SELECT * FROM proyecto WHERE id_proyecto = %s"
+                cursor.execute(sql, (id_proyecto,))
+                resultado = cursor.fetchone()
+                if resultado:
+                    return True, resultado
+                return False, "Proyecto no encontrado"
         except Error as e:
-            return f"Error al leer el proyecto: {str(e)}"
-        finally:
-            conexion.close()
-    
-    # Método para actualizar un proyecto en la base de datos
-    def actualizar_proyecto(self, Nombre=None, Descripcion=None, Fecha_inicio=None, Fecha_fin=None):
-        conexion = obtener_conexion()
+            return False, f"Error al obtener el proyecto de la BD: {str(e)}"
+
+    def actualizar_proyecto_bd(self, conexion):
+        """Actualiza un proyecto existente en la base de datos"""
         try:
             with conexion.cursor() as cursor:
-                sql = "UPDATE proyectos SET Nombre = %s, Descripcion = %s, Fecha_inicio = %s, Fecha_fin = %s WHERE Id_proyecto = %s"
-                cursor.execute(sql, (
-                    Nombre or self.Nombre,
-                    Descripcion or self.Descripcion,
-                    Fecha_inicio or self.Fecha_inicio,
-                    Fecha_fin or self.Fecha_fin,
-                    self.Id_proyecto
-                ))
+                sql = """UPDATE proyecto SET nombre = %s, descripcion = %s, 
+                        fecha_inicio = %s, fecha_fin = %s WHERE id_proyecto = %s"""
+                valores = (self._Nombre, self._Descripcion, self._Fecha_inicio,
+                          self._Fecha_fin, self._Id_proyecto)
+                cursor.execute(sql, valores)
                 conexion.commit()
-            return "Proyecto actualizado exitosamente."
+                if cursor.rowcount > 0:
+                    return True, "Proyecto actualizado exitosamente"
+                return False, "No se encontró el proyecto para actualizar"
         except Error as e:
-            return f"Error al actualizar el proyecto: {str(e)}"
-        finally:
-            conexion.close()
-    
-    # Método para eliminar un proyecto de la base de datos
+            return False, f"Error al actualizar el proyecto en la BD: {str(e)}"
+
     @classmethod
-    def eliminar_proyecto(cls, Id_proyecto):
-        conexion = obtener_conexion()
+    def eliminar_proyecto_bd(cls, conexion, id_proyecto):
+        """Elimina un proyecto de la base de datos"""
         try:
             with conexion.cursor() as cursor:
-                sql = "DELETE FROM proyectos WHERE Id_proyecto = %s"
-                cursor.execute(sql, (Id_proyecto,))
+                sql = "DELETE FROM proyecto WHERE id_proyecto = %s"
+                cursor.execute(sql, (id_proyecto,))
                 conexion.commit()
-            return "Proyecto eliminado exitosamente."
+                if cursor.rowcount > 0:
+                    return True, "Proyecto eliminado exitosamente"
+                return False, "No se encontró el proyecto para eliminar"
         except Error as e:
-            return f"Error al eliminar el proyecto: {str(e)}"
-        finally:
-            conexion.close()
-    
-    # Método para asignar un empleado a un proyecto
-    @classmethod
-    def asignar_empleado(cls, Id_proyecto, Id_empleado):
-        conexion = obtener_conexion()
-        try:
-            with conexion.cursor() as cursor:
-                sql = "INSERT INTO proyecto_empleados (Id_proyecto, Id_empleado) VALUES (%s, %s)"
-                cursor.execute(sql, (Id_proyecto, Id_empleado))
-                conexion.commit()
-            return f"Empleado {Id_empleado} asignado al proyecto {Id_proyecto}."
-        except Error as e:
-            return f"Error al asignar empleado: {str(e)}"
-        finally:
-            conexion.close()
-    
-    # Método para eliminar un empleado de un proyecto
-    @classmethod
-    def eliminar_empleado(cls, Id_proyecto, Id_empleado):
-        conexion = obtener_conexion()
-        try:
-            with conexion.cursor() as cursor:
-                sql = "DELETE FROM proyecto_empleados WHERE Id_proyecto = %s AND Id_empleado = %s"
-                cursor.execute(sql, (Id_proyecto, Id_empleado))
-                conexion.commit()
-            return f"Empleado {Id_empleado} eliminado del proyecto {Id_proyecto}."
-        except Error as e:
-            return f"Error al eliminar empleado: {str(e)}"
-        finally:
-            conexion.close()
-    
+            return False, f"Error al eliminar el proyecto de la BD: {str(e)}"

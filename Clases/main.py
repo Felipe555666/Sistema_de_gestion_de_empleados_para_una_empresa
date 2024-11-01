@@ -6,6 +6,9 @@ from Registro_tiempo import registroTiempo
 from Informe import informe
 from Tipo_empleado import  tipoEmpleado
 from Proyecto_empleado import  proyectoEmpleado
+from conexion import Conexion
+
+
 
 
 class SistemaGestionEmpleados:
@@ -20,6 +23,7 @@ class SistemaGestionEmpleados:
         self.id_registro = 1
         self.id_informe = 1
         self.id_tipo_empleado = 1
+
 
     def menu_principal(self):
         while True:
@@ -127,6 +131,7 @@ class SistemaGestionEmpleados:
                 print("Opción no válida. Intente de nuevo.")
 
     def menu_informes(self):
+        obj =  informe()
         while True:
             print("\n--- Informes ---")
             print("1. Crear nuevo informe")
@@ -138,13 +143,13 @@ class SistemaGestionEmpleados:
             opcion = input("Seleccione una opción: ")
             
             if opcion == "1":
-                self.crear_informe()
+                obj.crear_informe()
             elif opcion == "2":
-                self.ver_informe()
+                obj.ver_informe()
             elif opcion == "3":
-                self.actualizar_informe()
+                obj.actualizar_informe()
             elif opcion == "4":
-                self.eliminar_informe()
+                obj.eliminar_informe()
             elif opcion == "0":
                 break
             else:
@@ -152,3 +157,6 @@ class SistemaGestionEmpleados:
 
     def menu_proyecto_empleado(self):
         obj =   proyectoEmpleado()
+
+obj_principal = SistemaGestionEmpleados()
+obj_principal.menu_principal()

@@ -3,7 +3,7 @@ from mysql.connector import Error
 import mysql.connector
 from conexion import Conexion
 
-mydb = Conexion.iniciar_conexion()
+
 
 class proyecto:
     def __init__(self, Id_proyecto=None, Nombre=None, Descripcion=None, Fecha_inicio=None, Fecha_fin=None):
@@ -145,6 +145,7 @@ class proyecto:
         
 
     def crear_proyecto(self, mydb):
+        mydb = Conexion.iniciar_conexion()
         print("\n--- Crear Nuevo Proyecto ---")
         nombre = input("Nombre del proyecto: ")
         descripcion = input("Descripción: ")
@@ -157,16 +158,14 @@ class proyecto:
         
         try:
             #el id de proyecto no se incluye, se genera automatico en BD
-            mydb = mydb.cursor()
-            with mydb.cursor() as cursor:
-                sql = """INSERT INTO proyecto (nombre, descripcion, 
+            cursor = mydb.cursor()
+           
+            sql = """INSERT INTO proyecto (nombre, descripcion, 
                         fecha_inicio, fecha_fin) VALUES (%s, %s, %s, %s)"""
-                valores = (proyecto._Nombre, 
-                          proyecto._Descripcion, proyecto._Fecha_inicio, 
-                          proyecto._Fecha_fin)
-                cursor.execute(sql, valores)
-                mydb.commit()
-                return True, "Proyecto creado exitosamente"
+            valores = nombre, descripcion, fecha_inicio,fecha_fin
+            cursor.execute(sql, valores)
+            mydb.commit()
+            return True, "Proyecto creado exitosamente"
         except Error as e:
             return False, f"Error al crear el proyecto en la BD: {str(e)}"
             #self.proyectos[self.id_proyecto] = nuevo_proyecto

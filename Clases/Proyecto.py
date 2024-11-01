@@ -1,3 +1,4 @@
+
 import mysql.connector
 from mysql.connector import Error
 from Obtener_conexion import obtenerConexion
@@ -133,4 +134,3 @@ class proyecto:
             return f"Error al eliminar empleado: {str(e)}"
         finally:
             conexion.close()
-    

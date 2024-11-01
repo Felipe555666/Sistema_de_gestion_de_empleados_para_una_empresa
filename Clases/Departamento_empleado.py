@@ -1,3 +1,4 @@
+
 from Departamento import departamento
 from Empleado import empleado
 
@@ -6,3 +7,4 @@ class departamentoEmpleado(departamento, empleado):
         departamento.__init__(self, Id_departamento)
         empleado.__init__(self, Id_empleado)
         self._Id_dep_empleado = Id_dep_empleado
+

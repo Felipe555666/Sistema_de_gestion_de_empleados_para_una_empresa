@@ -207,4 +207,4 @@ class empleado(tipoEmpleado):
         cursor.execute(query, valores)
         conexion.commit()
         cursor.close()
-        print(f"Empleado {self.Nombre} ha sido actualizado en la base de datos.")
+

@@ -1,3 +1,4 @@
+
 from Empleado import empleado
 
 class departamento(empleado):

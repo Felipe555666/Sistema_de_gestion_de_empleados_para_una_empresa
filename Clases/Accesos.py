@@ -1,3 +1,4 @@
+
 from Modulos import modulos
 from Tipo_empleado import tipoEmpleado
 
@@ -24,4 +25,3 @@ class accesos(modulos, tipoEmpleado):
             # Simulación de registro de acceso (podría almacenarse en una base de datos)
             return True, f"Acceso registrado correctamente para el empleado con ID {self._Id_acceso}"
         else:
-            return False, mensaje

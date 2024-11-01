@@ -1,3 +1,4 @@
+
 class tipoEmpleado:
     def __init__(self,Id_tipo_empleado,Tipo,Permiso):
         self._Id_tipo_empleado = Id_tipo_empleado
@@ -21,3 +22,4 @@ class tipoEmpleado:
                 return False, "El permiso debe ser un número entero entre 0 y 10."
 
         return True, "Los datos del tipo de empleado han sido actualizados exitosamente."
+

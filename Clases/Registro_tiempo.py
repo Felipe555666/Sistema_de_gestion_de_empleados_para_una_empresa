@@ -108,3 +108,17 @@ class registroTiempo(proyectoEmpleado):
         """Representación en string del registro de tiempo"""
         return (f"Registro Tiempo ID: {self._Id_reg_tiempo} - "
                 f"Total Horas: {self._horas_trabajadas}")
+
+
+    def registrar_horas(self):
+        id_emp = int(input("Ingrese el ID del empleado: "))
+        id_proy = int(input("Ingrese el ID del proyecto: "))
+        horas = float(input("Ingrese las horas trabajadas: "))
+        fecha = input("Ingrese la fecha (YYYY-MM-DD) o deje en blanco para hoy: ")
+        
+        if not fecha:
+            fecha = datetime.now().strftime("%Y-%m-%d")
+        
+        if id_emp in self.empleados and id_proy in self.proyectos:
+            registro = registroTiempo(self.id_registro, 0, id_proy, id_emp, "", "", "", "")
+            resultado, mensaje = registro.registro_horas(horas, fecha)

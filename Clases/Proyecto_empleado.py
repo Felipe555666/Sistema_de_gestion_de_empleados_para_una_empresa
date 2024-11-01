@@ -54,3 +54,13 @@ class proyectoEmpleado(empleado, proyecto):
     def __str__(self):
         """Representación en string de la asignación proyecto-empleado"""
         return f"Proyecto-Empleado: ID {self._Id_pro_empleado} - Proyecto: {self._Nombre} - Empleado ID: {self._Id_empleado}"
+
+
+    def asignar_empleado_proyecto(self):
+        id_emp = int(input("Ingrese el ID del empleado: "))
+        id_proy = int(input("Ingrese el ID del proyecto: "))
+        if id_emp in self.empleados and id_proy in self.proyectos:
+            # Aquí se debería crear una instancia de proyectoEmpleado
+            print("Empleado asignado al proyecto con éxito.")
+        else:
+            print("Empleado o proyecto no encontrado.")

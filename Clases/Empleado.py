@@ -91,3 +91,66 @@ class empleado(tipoEmpleado):
 
     def __str__(self):
         return f"Empleado: {self._Nombre} (ID: {self._Id_empleado})"
+    
+    def registrar_empleado(self):
+        print("\n--- Registrar Nuevo Empleado ---")
+        nombre = input("Nombre: ")
+        direccion = input("Dirección: ")
+        telefono = input("Teléfono: ")
+        correo = input("Correo: ")
+        fecha_inicio = input("Fecha de inicio (YYYY-MM-DD): ")
+        salario = float(input("Salario: "))
+        fecha_nac = input("Fecha de nacimiento (YYYY-MM-DD): ")
+        contrasena = input("Contraseña: ")
+        tipo_empleado = input("Tipo de empleado: ")
+        permiso = int(input("Nivel de permiso (0-10): "))
+
+        nuevo_empleado = empleado(self.id_empleado, self.id_tipo_empleado, tipo_empleado, permiso, "")
+        nuevo_empleado.establecer_datos_personales(nombre, direccion, telefono, correo, fecha_inicio, salario, fecha_nac, contrasena)
+        
+        if nuevo_empleado.validar_datos()[0] and nuevo_empleado.validar_fechas()[0]:
+            self.empleados[self.id_empleado] = nuevo_empleado
+            self.id_empleado += 1
+            print("Empleado registrado con éxito.")
+        else:
+            print("Error al registrar empleado. Verifique los datos ingresados.")
+
+    
+    def ver_empleado(self):
+        id_emp = int(input("Ingrese el ID del empleado: "))
+        if id_emp in self.empleados:
+            info = self.empleados[id_emp].obtener_informacion_empleado()
+            for key, value in info.items():
+                print(f"{key}: {value}")
+        else:
+            print("Empleado no encontrado.")
+
+    
+    def actualizar_empleado(self):
+        id_emp = int(input("Ingrese el ID del empleado a actualizar: "))
+        if id_emp in self.empleados:
+            emp = self.empleados[id_emp]
+            print("Deje en blanco si no desea actualizar el campo.")
+            nombre = input("Nuevo nombre: ") or emp._Nombre
+            direccion = input("Nueva dirección: ") or emp._Direccion
+            telefono = input("Nuevo teléfono: ") or emp._Telefono
+            correo = input("Nuevo correo: ") or emp._Correo
+            
+            emp.establecer_datos_personales(nombre, direccion, telefono, correo, 
+                                            emp._Fecha_inicio, emp._Salario, emp._Fecha_nac, emp.__Contrasena)
+            if emp.validar_datos()[0]:
+                print("Empleado actualizado con éxito.")
+            else:
+                print("Error al actualizar empleado. Verifique los datos ingresados.")
+        else:
+            print("Empleado no encontrado.")
+
+    def eliminar_empleado(self):
+        id_emp = int(input("Ingrese el ID del empleado a eliminar: "))
+        if id_emp in self.empleados:
+            del self.empleados[id_emp]
+            print("Empleado eliminado con éxito.")
+        else:
+            print("Empleado no encontrado.")
+
+

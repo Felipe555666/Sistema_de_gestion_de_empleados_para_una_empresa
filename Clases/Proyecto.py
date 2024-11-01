@@ -1,5 +1,6 @@
 from datetime import datetime
 from mysql.connector import Error
+from  mysql.connector import pooling as pool
 
 class proyecto:
     def __init__(self, Id_proyecto, Nombre, Descripcion, Fecha_inicio, Fecha_fin):
@@ -151,3 +152,56 @@ class proyecto:
                 return False, "No se encontró el proyecto para eliminar"
         except Error as e:
             return False, f"Error al eliminar el proyecto de la BD: {str(e)}"
+        
+
+    def crear_proyecto(self):
+        print("\n--- Crear Nuevo Proyecto ---")
+        nombre = input("Nombre del proyecto: ")
+        descripcion = input("Descripción: ")
+        fecha_inicio = input("Fecha de inicio (YYYY-MM-DD): ")
+        fecha_fin = input("Fecha de fin (YYYY-MM-DD): ")
+
+        nuevo_proyecto = proyecto(self.id_proyecto, nombre, descripcion, fecha_inicio, fecha_fin)
+        if nuevo_proyecto.validar_fechas()[0]:
+            self.proyectos[self.id_proyecto] = nuevo_proyecto
+            self.id_proyecto += 1
+            print("Proyecto creado con éxito.")
+        else:
+            print("Error al crear proyecto. Verifique las fechas ingresadas.")
+
+    def ver_proyecto(self):
+        id_proy = int(input("Ingrese el ID del proyecto: "))
+        if id_proy in self.proyectos:
+            info = self.proyectos[id_proy].obtener_informacion_proyecto()
+            for key, value in info.items():
+                print(f"{key}: {value}")
+        else:
+            print("Proyecto no encontrado.")
+
+    def actualizar_proyecto(self):
+        id_proy = int(input("Ingrese el ID del proyecto a actualizar: "))
+        if id_proy in self.proyectos:
+            proy = self.proyectos[id_proy]
+            print("Deje en blanco si no desea actualizar el campo.")
+            nombre = input("Nuevo nombre: ") or proy._Nombre
+            descripcion = input("Nueva descripción: ") or proy._Descripcion
+            fecha_fin = input("Nueva fecha de fin (YYYY-MM-DD): ") or proy._Fecha_fin
+            
+            proy._Nombre = nombre
+            proy._Descripcion = descripcion
+            proy._Fecha_fin = fecha_fin
+            
+            if proy.validar_fechas()[0]:
+                print("Proyecto actualizado con éxito.")
+            else:
+                print("Error al actualizar proyecto. Verifique las fechas ingresadas.")
+        else:
+            print("Proyecto no encontrado.")
+
+    def eliminar_proyecto(self):
+        id_proy = int(input("Ingrese el ID del proyecto a eliminar: "))
+        if id_proy in self.proyectos:
+            del self.proyectos[id_proy]
+            print("Proyecto eliminado con éxito.")
+        else:
+            print("Proyecto no encontrado.")

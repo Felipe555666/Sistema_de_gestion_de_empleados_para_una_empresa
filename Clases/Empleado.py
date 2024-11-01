@@ -173,7 +173,7 @@ class empleado(tipoEmpleado):
         query = "SELECT * FROM Empleado WHERE id = %s"
         cursor.execute(query, (id_empleado,))
         resultado = cursor.fetchone()
-        cursor.close()
+        cursor.close() 
 
     @classmethod
     def obtener_por_id(cls, conexion, id_empleado):

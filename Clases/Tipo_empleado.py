@@ -1,11 +1,11 @@
 class tipoEmpleado:
-    def __init__(self,Id_tipo_empleado,Tipo,Permiso,Desc_empleado):
+    def __init__(self,Id_tipo_empleado,Tipo,Permiso):
         self._Id_tipo_empleado = Id_tipo_empleado
         self._Tipo = Tipo
         self._Permiso = Permiso
-        self._Desc_empleado = Desc_empleado
+        
 
-    def actualizar_tipo_empleado(self, Tipo=None, Permiso=None, Desc_empleado=None):
+    def actualizar_tipo_empleado(self, Tipo=None, Permiso=None):
         # Validar y actualizar el tipo
         if Tipo is not None:
             if isinstance(Tipo, str) and Tipo:
@@ -19,12 +19,5 @@ class tipoEmpleado:
                 self._Permiso = Permiso
             else:
                 return False, "El permiso debe ser un número entero entre 0 y 10."
-
-        # Validar y actualizar la descripción del empleado
-        if Desc_empleado is not None:
-            if isinstance(Desc_empleado, str) and Desc_empleado:
-                self._Desc_empleado = Desc_empleado
-            else:
-                return False, "La descripción debe ser un valor de texto no vacío."
 
         return True, "Los datos del tipo de empleado han sido actualizados exitosamente."

@@ -1,3 +1,6 @@
+import mysql.connector
+from mysql.connector import Error
+from Obtener_conexion import obtenerConexion
 from datetime import datetime
 class proyecto:
     def __init__(self,Id_proyecto,Nombre,Descripcion,Fecha_inicio,Fecha_fin):
@@ -6,6 +9,10 @@ class proyecto:
         self._Descripcion = Descripcion
         self._Fecha_inicio = Fecha_inicio
         self._Fecha_fin = Fecha_fin
+
+    @property
+    def Id_proyecto(self):
+        return self.__Id_proyecto
     
     def validar_fechas(self):
 
@@ -13,8 +20,9 @@ class proyecto:
 
         try:
             fecha_inicio = datetime.strptime(self._Fecha_inicio, formato_fecha)
-        except ValueError:
-            return False, "La fecha de inicio no esta en el formato correcto"
+            fecha_fin = datetime.strptime(self._Fecha_fin, formato_fecha)
+        except ValueError as e:
+            return False, f"Formato de fecha incorrecto: {str(e)}"
         
         try:
             fecha_fin = datetime.strptime(self._Fecha_fin, formato_fecha)
@@ -31,11 +39,10 @@ class proyecto:
         return True, "las fechas son validas"
     
     
-    
     # Método para crear un proyecto en la base de datos
     @classmethod
     def crear_proyecto(cls, Id_proyecto, Nombre, Descripcion, Fecha_inicio, Fecha_fin):
-        conexion = obtener_conexion()
+        conexion = obtenerConexion()
         try:
             with conexion.cursor() as cursor:
                 sql = "INSERT INTO proyectos (Id_proyecto, Nombre, Descripcion, Fecha_inicio, Fecha_fin) VALUES (%s, %s, %s, %s, %s)"
@@ -50,7 +57,7 @@ class proyecto:
     # Método para leer un proyecto de la base de datos
     @classmethod
     def leer_proyecto(cls, Id_proyecto):
-        conexion = obtener_conexion()
+        conexion = obtenerConexion()
         try:
             with conexion.cursor(dictionary=True) as cursor:
                 sql = "SELECT * FROM proyectos WHERE Id_proyecto = %s"
@@ -64,7 +71,7 @@ class proyecto:
     
     # Método para actualizar un proyecto en la base de datos
     def actualizar_proyecto(self, Nombre=None, Descripcion=None, Fecha_inicio=None, Fecha_fin=None):
-        conexion = obtener_conexion()
+        conexion = obtenerConexion()
         try:
             with conexion.cursor() as cursor:
                 sql = "UPDATE proyectos SET Nombre = %s, Descripcion = %s, Fecha_inicio = %s, Fecha_fin = %s WHERE Id_proyecto = %s"
@@ -85,7 +92,7 @@ class proyecto:
     # Método para eliminar un proyecto de la base de datos
     @classmethod
     def eliminar_proyecto(cls, Id_proyecto):
-        conexion = obtener_conexion()
+        conexion = obtenerConexion()
         try:
             with conexion.cursor() as cursor:
                 sql = "DELETE FROM proyectos WHERE Id_proyecto = %s"
@@ -100,7 +107,7 @@ class proyecto:
     # Método para asignar un empleado a un proyecto
     @classmethod
     def asignar_empleado(cls, Id_proyecto, Id_empleado):
-        conexion = obtener_conexion()
+        conexion = obtenerConexion()
         try:
             with conexion.cursor() as cursor:
                 sql = "INSERT INTO proyecto_empleados (Id_proyecto, Id_empleado) VALUES (%s, %s)"
@@ -115,7 +122,7 @@ class proyecto:
     # Método para eliminar un empleado de un proyecto
     @classmethod
     def eliminar_empleado(cls, Id_proyecto, Id_empleado):
-        conexion = obtener_conexion()
+        conexion = obtenerConexion()
         try:
             with conexion.cursor() as cursor:
                 sql = "DELETE FROM proyecto_empleados WHERE Id_proyecto = %s AND Id_empleado = %s"

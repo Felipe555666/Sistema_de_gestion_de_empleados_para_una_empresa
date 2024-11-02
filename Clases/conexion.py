@@ -9,7 +9,7 @@ class Conexion:
                 host="localhost",
                 user="root",
                 password="",
-                database="sistema_gestion_de_empleados"
+                database="Sistema_Gestion_De_Empleados"
             )
             print("Conexión establecida exitosamente")
             return mydb

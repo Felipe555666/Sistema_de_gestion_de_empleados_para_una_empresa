@@ -123,7 +123,8 @@ class empleado(tipoEmpleado):
                 return False, "Empleado no encontrado"
         except Error as e:
             return False, f"Error al obtener el empleado de la BD: {str(e)}"
-
+        
+    @classmethod
     def actualizar_empleado_bd(self, conexion):
         try:
             with conexion.cursor() as cursor:
@@ -243,25 +244,49 @@ class empleado(tipoEmpleado):
             print(f"Error al ver empleado: {str(e)}")
 
     
-    def actualizar_empleado(self):
-        id_emp = int(input("Ingrese el ID del empleado a actualizar: "))
-        if id_emp in self.empleados:
-            emp = self.empleados[id_emp]
-            print("Deje en blanco si no desea actualizar el campo.")
-            nombre = input("Nuevo nombre: ") or emp._Nombre
-            direccion = input("Nueva dirección: ") or emp._Direccion
-            telefono = input("Nuevo teléfono: ") or emp._Telefono
-            correo = input("Nuevo correo: ") or emp._Correo
+    def actualizar_empleado_bd(self, mydb):
+        try:
+            id_emp = int(input("Ingrese el ID del empleado a actualizar: "))
             
-            emp.establecer_datos_personales(nombre, direccion, telefono, correo, 
-                                            emp._Fecha_inicio, emp._Salario, emp._Fecha_nac, emp.__Contrasena
-                                            )
-            if emp.validar_datos()[0]:
-                print("Empleado actualizado con éxito.")
+            cursor = mydb.cursor(dictionary=True)
+            
+            # Verificar si el empleado existe
+            cursor.execute("SELECT * FROM empleado WHERE id_empleado = %s", (id_emp,))
+            empleado_actual = cursor.fetchone()
+            
+            if not empleado_actual:
+                print("Empleado no encontrado.")
+                return
+            
+            print("\nDeje en blanco si no desea actualizar el campo.")
+            nombre = input(f"Nuevo nombre ({empleado_actual['nombre']}): ") or empleado_actual['nombre']
+            direccion = input(f"Nueva dirección ({empleado_actual['direccion']}): ") or empleado_actual['direccion']
+            telefono = input(f"Nuevo teléfono ({empleado_actual['telefono']}): ") or empleado_actual['telefono']
+            correo = input(f"Nuevo correo ({empleado_actual['correo']}): ") or empleado_actual['correo']
+            
+            # Actualizar en la base de datos
+            sql = """UPDATE empleado 
+                     SET nombre = %s, direccion = %s, telefono = %s, correo = %s 
+                     WHERE id_empleado = %s"""
+            valores = (nombre, direccion, telefono, correo, id_emp)
+            
+            cursor.execute(sql, valores)
+            mydb.commit()
+            
+            if cursor.rowcount > 0:
+                print("Empleado actualizado exitosamente.")
             else:
-                print("Error al actualizar empleado. Verifique los datos ingresados.")
-        else:
-            print("Empleado no encontrado.")
+                print("No se realizaron cambios.")
+                
+        except mysql.connector.Error as err:
+            print(f"Error de base de datos: {err}")
+        except ValueError:
+            print("Por favor, ingrese un ID válido (número entero)")
+        except Exception as e:
+            print(f"Error al actualizar empleado: {str(e)}")
+        finally:
+            if cursor:
+                cursor.close()
 
     def eliminar_empleado(self, mydb):
         try:

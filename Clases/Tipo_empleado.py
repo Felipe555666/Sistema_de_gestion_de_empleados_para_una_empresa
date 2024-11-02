@@ -5,10 +5,11 @@ from conexion import Conexion
 mydb = Conexion.iniciar_conexion()
 
 class tipoEmpleado:
-    def __init__(self, Id_tipo_empleado=None, Tipo=None, Permiso=None):
+    def __init__(self, Id_tipo_empleado=None, Tipo=None, Permiso=None, Desc_empleado=None):
         self._Id_tipo_empleado = Id_tipo_empleado
         self._Tipo = Tipo
         self._Permiso = Permiso
+        self._Desc_empleado = Desc_empleado
         
 
 

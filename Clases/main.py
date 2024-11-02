@@ -1,5 +1,11 @@
 import mysql.connector
+from mysql.connector import Error
 import sys
+from datetime import datetime
+from Modulos import modulos
+from Accesos import Accesos
+from Departamento import Departamento
+from Departamento_empleado import DepartamentoEmpleado
 from Empleado import empleado
 from Proyecto import proyecto
 from Registro_tiempo import registroTiempo
@@ -37,6 +43,8 @@ class SistemaGestionEmpleados:
             print("3. Registro de Tiempo")
             print("4. Informes")
             print("5. Tipos de Empleado")
+            print("6. Gestión de Departamentos")  # Nueva opción
+            print("7. Gestión de Accesos")
             print("0. Salir")
             
             opcion = input("Seleccione una opción: ")
@@ -51,6 +59,10 @@ class SistemaGestionEmpleados:
                 self.menu_informes()
             elif opcion == "5":
                 self.menu_tipos_empleado()
+            elif opcion == "6":
+                self.menu_departamentos()
+            elif opcion == "7":
+                self.menu_accesos()    
             elif opcion == "0":
                 print("Gracias por usar el sistema. ¡Hasta luego!")
                 sys.exit()
@@ -81,7 +93,7 @@ class SistemaGestionEmpleados:
                     print("Error: No hay conexión a la ba1se de datos")
             elif opcion == "3":
                 if self.mydb:
-                    obj.actualizar_empleado(self.mydb)
+                    obj.actualizar_empleado_bd(self.mydb)  # Asegúrate de pasar self.mydb aquí
                 else:
                     print("Error: No hay conexión a la base de datos")
             elif opcion == "4":
@@ -96,6 +108,7 @@ class SistemaGestionEmpleados:
 
     def menu_proyectos(self):
         obj = proyecto()
+        obj_asignacion = proyectoEmpleado(None, None, None, None, None, None, None)
         while True:
             print("\n--- Gestión de Proyectos ---")
             print("1. Crear nuevo proyecto")
@@ -266,18 +279,27 @@ class SistemaGestionEmpleados:
             opcion = input("Seleccione una opción: ")
             
             if opcion == "1":
-                obj.registrar_horas(self.mydb)
+                if self.mydb:
+                    obj.registrar_horas(self.mydb)
+                else:
+                    print("Error: No hay conexión a la base de datos")
             elif opcion == "2":
-                obj.obtener_total_horas()
+                if self.mydb:
+                    obj.obtener_total_horas(self.mydb)
+                else:
+                    print("Error: No hay conexión a la base de datos")
             elif opcion == "3":
-                obj.reiniciar_horas()
+                if self.mydb:
+                    obj.reiniciar_horas(self.mydb)
+                else:
+                    print("Error: No hay conexión a la base de datos")
             elif opcion == "0":
                 break
             else:
                 print("Opción no válida. Intente de nuevo.")
 
     def menu_informes(self):
-        obj =  informe()
+        obj = informe()  # Ahora esto debería funcionar sin errores
         while True:
             print("\n--- Informes ---")
             print("1. Crear nuevo informe")
@@ -289,20 +311,222 @@ class SistemaGestionEmpleados:
             opcion = input("Seleccione una opción: ")
             
             if opcion == "1":
-                obj.crear_informe()
+                if self.mydb:
+                    obj.crear_informe(self.mydb)
+                else:
+                    print("Error: No hay conexión a la base de datos")
             elif opcion == "2":
-                obj.ver_informe()
+                if self.mydb:
+                    obj.ver_informe(self.mydb)
+                else:
+                    print("Error: No hay conexión a la base de datos")
             elif opcion == "3":
-                obj.actualizar_informe()
+                if self.mydb:
+                    obj.actualizar_informe(self.mydb)
+                else:
+                    print("Error: No hay conexión a la base de datos")
             elif opcion == "4":
-                obj.eliminar_informe()
+                if self.mydb:
+                    obj.eliminar_informe(self.mydb)
+                else:
+                    print("Error: No hay conexión a la base de datos")
             elif opcion == "0":
                 break
             else:
                 print("Opción no válida. Intente de nuevo.")
 
-    def menu_proyecto_empleado(self):
-        obj =   proyectoEmpleado()
+    def menu_tipos_empleado(self):
+        obj = tipoEmpleado()  # Crear una instancia de la clase tipoEmpleado
+        while True:
+            print("\n--- Gestión de Tipos de Empleado ---")
+            print("1. Crear nuevo tipo de empleado")
+            print("2. Ver tipos de empleado")
+            print("3. Actualizar tipo de empleado")
+            print("4. Eliminar tipo de empleado")
+            print("0. Volver al menú principal")
+            
+            opcion = input("Seleccione una opción: ")
+            
+            if opcion == "1":
+                try:
+                    tipo = input("Ingrese el tipo de empleado: ")
+                    permiso = int(input("Ingrese el nivel de permiso (0-10): "))
+                    
+                    cursor = self.mydb.cursor()
+                    sql = "INSERT INTO tipoEmpleado (Tipo, Permiso) VALUES (%s, %s)"
+                    cursor.execute(sql, (tipo, permiso))
+                    self.mydb.commit()
+                    print("Tipo de empleado creado exitosamente")
+                    
+                except Exception as e:
+                    print(f"Error al crear tipo de empleado: {str(e)}")
+                finally:
+                    if 'cursor' in locals():
+                        cursor.close()
+                        
+            elif opcion == "2":
+                try:
+                    cursor = self.mydb.cursor(dictionary=True)
+                    cursor.execute("SELECT * FROM tipoEmpleado")
+                    tipos = cursor.fetchall()
+                    
+                    if tipos:
+                        print("\n=== Tipos de Empleado ===")
+                        for tipo in tipos:
+                            print(f"ID: {tipo['Id_tipo_empleado']}")
+                            print(f"Tipo: {tipo['Tipo']}")
+                            print(f"Permiso: {tipo['Permiso']}")
+                            print("-" * 20)
+                    else:
+                        print("No hay tipos de empleado registrados")
+                        
+                except Exception as e:
+                    print(f"Error al consultar tipos de empleado: {str(e)}")
+                finally:
+                    if 'cursor' in locals():
+                        cursor.close()
+                        
+            elif opcion == "3":
+                try:
+                    id_tipo = int(input("Ingrese el ID del tipo de empleado a actualizar: "))
+                    
+                    cursor = self.mydb.cursor(dictionary=True)
+                    cursor.execute("SELECT * FROM tipoEmpleado WHERE Id_tipo_empleado = %s", (id_tipo,))
+                    tipo_actual = cursor.fetchone()
+                    
+                    if tipo_actual:
+                        print("\nDeje en blanco si no desea actualizar el campo")
+                        nuevo_tipo = input(f"Tipo actual ({tipo_actual['Tipo']}). Nuevo tipo: ")
+                        nuevo_permiso = input(f"Permiso actual ({tipo_actual['Permiso']}). Nuevo permiso: ")
+                        
+                        updates = []
+                        valores = []
+                        if nuevo_tipo:
+                            updates.append("Tipo = %s")
+                            valores.append(nuevo_tipo)
+                        if nuevo_permiso:
+                            updates.append("Permiso = %s")
+                            valores.append(int(nuevo_permiso))
+                        
+                        if updates:
+                            sql = f"UPDATE tipoEmpleado SET {', '.join(updates)} WHERE Id_tipo_empleado = %s"
+                            valores.append(id_tipo)
+                            cursor.execute(sql, tuple(valores))
+                            self.mydb.commit()
+                            print("Tipo de empleado actualizado exitosamente")
+                    else:
+                        print("Tipo de empleado no encontrado")
+                        
+                except Exception as e:
+                    print(f"Error al actualizar tipo de empleado: {str(e)}")
+                finally:
+                    if 'cursor' in locals():
+                        cursor.close()
+                        
+            elif opcion == "4":
+                try:
+                    id_tipo = int(input("Ingrese el ID del tipo de empleado a eliminar: "))
+                    
+                    cursor = self.mydb.cursor()
+                    cursor.execute("DELETE FROM tipoEmpleado WHERE Id_tipo_empleado = %s", (id_tipo,))
+                    self.mydb.commit()
+                    
+                    if cursor.rowcount > 0:
+                        print("Tipo de empleado eliminado exitosamente")
+                    else:
+                        print("Tipo de empleado no encontrado")
+                        
+                except Exception as e:
+                    print(f"Error al eliminar tipo de empleado: {str(e)}")
+                finally:
+                    if 'cursor' in locals():
+                        cursor.close()
+                        
+            elif opcion == "0":
+                break
+            else:
+                print("Opción no válida. Intente de nuevo.")
+
+    def menu_departamentos(self):
+        obj = Departamento()
+        while True:
+            print("\n--- Gestión de Departamentos ---")
+            print("1. Ver departamentos")
+            print("2. Crear nuevo departamento")
+            print("3. Actualizar departamento")
+            print("4. Eliminar departamento")
+            print("5. Asignar empleado a departamento")
+            print("6. Ver empleados por departamento")
+            print("0. Volver al menú principal")
+            
+            opcion = input("Seleccione una opción: ")
+            
+            if opcion == "1":
+                Departamento.ver_departamentos_db() 
+            elif opcion == "2":
+                obj.crear_departamento()
+            elif opcion == "3":
+                obj.actualizar_departamento()
+            elif opcion == "4":
+                obj.eliminar_departamento()
+            elif opcion == "5":
+                obj.asignar_empleado_departamento()
+            elif opcion == "6":
+                obj.ver_empleados_departamento()
+            elif opcion == "0":
+                break
+            else:
+                print("Opción no válida")
+
+    def menu_accesos(self):
+        try:
+            while True:
+                print("\n--- Gestión de Accesos ---")
+                print("1. Verificar acceso de un empleado")
+                print("2. Ver historial de accesos")
+                print("3. Limpiar historial de accesos")
+                print("0. Volver al menú principal")
+                
+                opcion = input("Seleccione una opción: ")
+                
+                if opcion == "1":
+                    try:
+                        id_empleado = int(input("Ingrese el ID del empleado: "))
+                        id_modulo = int(input("Ingrese el ID del módulo: "))
+                        
+                        tiene_acceso, mensaje = Accesos.obtener_acceso(id_empleado, id_modulo)
+                        print(mensaje)
+                        
+                        # Registrar el acceso
+                        cursor = mydb.cursor()
+                        cursor.execute("""
+                            INSERT INTO Accesos (Id_modulo, Id_tipo_empleado, Exitoso) 
+                            VALUES (%s, %s, %s)
+                        """, (id_modulo, id_empleado, tiene_acceso))
+                        mydb.commit()
+                        
+                    except ValueError:
+                        print("Error: Los IDs deben ser números enteros")
+                    except Exception as e:
+                        print(f"Error al verificar acceso: {str(e)}")
+                    finally:
+                        if 'cursor':
+                            cursor.close()
+                elif opcion == "2":
+                    # Ver historial de accesos
+                    acceso = Accesos()
+                    acceso.ver_historial_accesos()
+                elif opcion == "3":
+                    # Limpiar historial de accesos
+                    acceso = Accesos()
+                    acceso.limpiar_historial_accesos()
+                elif opcion == "0":
+                    break
+                else:
+                    print("Opción inválida. Intente nuevamente.")
+        except Exception as e:
+            print(f"Error en el menú de accesos: {str(e)}")
+    
 
 obj_principal = SistemaGestionEmpleados()
 obj_principal.menu_principal()

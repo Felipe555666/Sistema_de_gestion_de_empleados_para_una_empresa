@@ -1,5 +1,5 @@
 class modulos:
-    def __init__(self, Id_modulo, Nombre, Nivel_requerido):
+    def __init__(self, Id_modulo=None, Nombre=None, Nivel_requerido=None):
         self._Id_modulo = Id_modulo
         self._Nombre = Nombre
         self._Nivel_requerido = Nivel_requerido

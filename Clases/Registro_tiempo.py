@@ -9,7 +9,6 @@ class registroTiempo(proyectoEmpleado):
                         Nombre, Descripcion, Fecha_inicio, Fecha_fin)
         self._Id_reg_tiempo = Id_reg_tiempo
         self._horas_trabajadas = 0
-        self._registros = []  # Lista para almacenar el historial de registros
 
     def validar_registro(self):
         """Valida los datos del registro de tiempo"""
@@ -67,9 +66,35 @@ class registroTiempo(proyectoEmpleado):
         except Exception as e:
             return False, f"Error al registrar horas: {str(e)}"
         
-    def obtener_total_horas(self):
-        """Retorna el total de horas trabajadas"""
-        return self._horas_trabajadas
+    def obtener_total_horas(self, mydb):
+        """Retorna el total de horas trabajadas desde la base de datos"""
+        try:
+            cursor = mydb.cursor()
+            id_emp = int(input("Ingrese el ID del empleado: "))
+            
+            # Consulta SQL para obtener el total de horas
+            sql = """
+            SELECT SUM(rt.horas_trabajadas) as total_horas
+            FROM registroTiempo rt
+            JOIN proyectoEmpleado pe ON rt.Id_pro_empleado = pe.Id_pro_empleado
+            WHERE pe.Id_empleado = %s
+            """
+            cursor.execute(sql, (id_emp,))
+            resultado = cursor.fetchone()
+            
+            if resultado and resultado[0]:
+                print(f"\nTotal de horas trabajadas: {resultado[0]} horas")
+                return True, resultado[0]
+            else:
+                print("No hay registros de horas para este empleado")
+                return False, 0
+                
+        except Exception as e:
+            print(f"Error al obtener total de horas: {str(e)}")
+            return False, 0
+        finally:
+            if cursor:
+                cursor.close()
     
     def obtener_registros(self):
         """Retorna el historial de registros"""
@@ -86,13 +111,37 @@ class registroTiempo(proyectoEmpleado):
         except Exception as e:
             return False, f"Error al obtener horas por fecha: {str(e)}"
 
-    def reiniciar_horas(self):
-        """Reinicia el contador de horas trabajadas"""
+    def reiniciar_horas(self, mydb):
+        """Reinicia el contador de horas trabajadas en la base de datos"""
         try:
-            self._horas_trabajadas = 0
-            return True, "Contador de horas reiniciado correctamente"
+            cursor = mydb.cursor()
+            id_emp = int(input("Ingrese el ID del empleado: "))
+            
+            # Verificar si el empleado existe
+            sql_check = "SELECT id_empleado FROM empleado WHERE id_empleado = %s"
+            cursor.execute(sql_check, (id_emp,))
+            if cursor.fetchone():
+                # Reiniciar las horas trabajadas
+                sql_reset = """
+                UPDATE registroTiempo rt
+                JOIN proyectoEmpleado pe ON rt.Id_pro_empleado = pe.Id_pro_empleado
+                SET rt.horas_trabajadas = 0
+                WHERE pe.Id_empleado = %s
+                """
+                cursor.execute(sql_reset, (id_emp,))
+                mydb.commit()
+                print("Contador de horas reiniciado correctamente")
+                return True, "Contador de horas reiniciado correctamente"
+            else:
+                print("Empleado no encontrado")
+                return False, "Empleado no encontrado"
+                
         except Exception as e:
-            return False, f"Error al reiniciar contador: {str(e)}"
+            print(f"Error al reiniciar horas: {str(e)}")
+            return False, f"Error al reiniciar horas: {str(e)}"
+        finally:
+            if cursor:
+                cursor.close()
 
     def obtener_informacion_registro(self):
         """Retorna la información básica del registro de tiempo"""
@@ -136,9 +185,15 @@ class registroTiempo(proyectoEmpleado):
                 cursor.execute(sql_insert, (id_pro_empleado, horas, fecha))
                 mydb.commit()
                 print("Horas registradas exitosamente")
+                return True, "Horas registradas exitosamente"
             else:
                 print("El empleado no está asignado a este proyecto")
+                return False, "El empleado no está asignado a este proyecto"
                 
         except Exception as e:
             print(f"Error al registrar horas: {str(e)}")
+            return False, f"Error al registrar horas: {str(e)}"
+        finally:
+            if cursor:
+                cursor.close()
         

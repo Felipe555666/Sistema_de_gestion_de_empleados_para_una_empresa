@@ -43,7 +43,7 @@ class SistemaGestionEmpleados:
             print("3. Registro de Tiempo")
             print("4. Informes")
             print("5. Tipos de Empleado")
-            print("6. Gestión de Departamentos")  # Nueva opción
+            print("6. Gestión de Departamentos")
             print("7. Gestión de Accesos")
             print("0. Salir")
             
@@ -93,7 +93,7 @@ class SistemaGestionEmpleados:
                     print("Error: No hay conexión a la ba1se de datos")
             elif opcion == "3":
                 if self.mydb:
-                    obj.actualizar_empleado_bd(self.mydb)  # Asegúrate de pasar self.mydb aquí
+                    obj.actualizar_empleado_bd(self.mydb) 
                 else:
                     print("Error: No hay conexión a la base de datos")
             elif opcion == "4":
@@ -299,7 +299,7 @@ class SistemaGestionEmpleados:
                 print("Opción no válida. Intente de nuevo.")
 
     def menu_informes(self):
-        obj = informe()  # Ahora esto debería funcionar sin errores
+        obj = informe()
         while True:
             print("\n--- Informes ---")
             print("1. Crear nuevo informe")
@@ -336,7 +336,7 @@ class SistemaGestionEmpleados:
                 print("Opción no válida. Intente de nuevo.")
 
     def menu_tipos_empleado(self):
-        obj = tipoEmpleado()  # Crear una instancia de la clase tipoEmpleado
+        obj = tipoEmpleado()
         while True:
             print("\n--- Gestión de Tipos de Empleado ---")
             print("1. Crear nuevo tipo de empleado")

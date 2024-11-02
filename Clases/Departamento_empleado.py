@@ -4,7 +4,7 @@ from conexion import Conexion
 
 mydb = Conexion.iniciar_conexion()
 
-class DepartamentoEmpleado:  # Cambiado de departamentoEmpleado a DepartamentoEmpleado
+class DepartamentoEmpleado:
     def __init__(self, Id_dep_empleado=None, Id_departamento=None, Id_empleado=None):
         self._Id_dep_empleado = Id_dep_empleado
         self._Id_departamento = Id_departamento

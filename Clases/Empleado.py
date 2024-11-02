@@ -189,13 +189,11 @@ class empleado(tipoEmpleado):
                         fecha_inicio, salario, fecha_nac, contrasena, id_tipo_empleado) 
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                 
-                # Primero insertar el tipo de empleado
                 sql_tipo = "INSERT INTO tipoEmpleado (Tipo, Permiso) VALUES (%s, %s)"
                 cursor.execute(sql_tipo, (tipo_empleado, permiso))
                 mydb.commit()
                 id_tipo_empleado = cursor.lastrowid
 
-                # Ahora insertar el empleado
                 valores = (nombre, direccion, telefono, correo, fecha_inicio, 
                         salario, fecha_nac, contrasena, id_tipo_empleado)
                 cursor.execute(sql, valores)
@@ -211,7 +209,7 @@ class empleado(tipoEmpleado):
             print(f"Error al registrar empleado: {str(e)}")
             return False, f"Error al registrar empleado en la BD: {str(e)}"
     
-    def ver_empleado(self, mydb):  # Añadimos self como primer parámetro
+    def ver_empleado(self, mydb):
         try:
             id_emp = int(input("Ingrese el ID del empleado: "))
             cursor = mydb.cursor(dictionary=True)

@@ -19,7 +19,6 @@ class proyectoEmpleado(empleado, proyecto):
             if not validacion_proyecto:
                 return False, f"Error en los datos del proyecto: {mensaje_proyecto}"
             
-            # Validar datos del empleado (asumiendo que existe un método similar en la clase empleado)
             validacion_empleado, mensaje_empleado = self.validar_datos()
             if not validacion_empleado:
                 return False, f"Error en los datos del empleado: {mensaje_empleado}"

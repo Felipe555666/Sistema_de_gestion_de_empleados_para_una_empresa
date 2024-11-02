@@ -3,7 +3,7 @@
 CREATE TABLE tipoEmpleado (
     Id_tipo_empleado INT PRIMARY KEY AUTO_INCREMENT,
     Tipo VARCHAR(50) NOT NULL,
-    Permiso VARCHAR(50) NOT NULL
+    Permiso INT NOT NULL
 );
 
 CREATE TABLE empleado (
@@ -21,7 +21,7 @@ CREATE TABLE empleado (
     FOREIGN KEY (id_tipo_empleado) REFERENCES tipoEmpleado(Id_tipo_empleado)
 );
 
-CREATE TABLE proyecto (
+CREATE TABLE proyectos (
     id_proyecto INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,

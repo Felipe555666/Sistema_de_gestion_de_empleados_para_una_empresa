@@ -2,8 +2,9 @@ from Proyecto_empleado import proyectoEmpleado
 from datetime import datetime
 
 class registroTiempo(proyectoEmpleado):
-    def __init__(self, Id_reg_tiempo, Id_pro_empleado, Id_proyecto, Id_empleado, 
-                 Nombre, Descripcion, Fecha_inicio, Fecha_fin):
+    def __init__(self, Id_reg_tiempo=None, Id_pro_empleado=None, Id_proyecto=None, 
+                 Id_empleado=None, Nombre=None, Descripcion=None, Fecha_inicio=None, 
+                 Fecha_fin=None):
         super().__init__(Id_pro_empleado, Id_proyecto, Id_empleado, 
                         Nombre, Descripcion, Fecha_inicio, Fecha_fin)
         self._Id_reg_tiempo = Id_reg_tiempo
@@ -85,7 +86,7 @@ class registroTiempo(proyectoEmpleado):
         except Exception as e:
             return False, f"Error al obtener horas por fecha: {str(e)}"
 
-    def reiniciar_contador(self):
+    def reiniciar_horas(self):
         """Reinicia el contador de horas trabajadas"""
         try:
             self._horas_trabajadas = 0
@@ -110,16 +111,34 @@ class registroTiempo(proyectoEmpleado):
                 f"Total Horas: {self._horas_trabajadas}")
 
 
-    def registrar_horas(self):
-        id_emp = int(input("Ingrese el ID del empleado: "))
-        id_proy = int(input("Ingrese el ID del proyecto: "))
-        horas = float(input("Ingrese las horas trabajadas: "))
-        fecha = input("Ingrese la fecha (YYYY-MM-DD) o deje en blanco para hoy: ")
-        
-        if not fecha:
-            fecha = datetime.now().strftime("%Y-%m-%d")
-        
-        if id_emp in self.empleados and id_proy in self.proyectos:
-            registro = registroTiempo(self.id_registro, 0, id_proy, id_emp, "", "", "", "")
-            resultado, mensaje = registro.registro_horas(horas, fecha)
+    def registrar_horas(self, mydb):
+        try:
+            id_emp = int(input("Ingrese el ID del empleado: "))
+            id_proy = int(input("Ingrese el ID del proyecto: "))
+            horas = float(input("Ingrese las horas trabajadas: "))
+            fecha = input("Ingrese la fecha (YYYY-MM-DD) o deje en blanco para hoy: ")
+            
+            if not fecha:
+                fecha = datetime.now().strftime("%Y-%m-%d")
+            
+            cursor = mydb.cursor()
+            # Verificar si el empleado y el proyecto existen
+            sql_check = """SELECT pe.Id_pro_empleado FROM proyectoEmpleado pe 
+                        WHERE pe.Id_empleado = %s AND pe.Id_proyecto = %s"""
+            cursor.execute(sql_check, (id_emp, id_proy))
+            resultado = cursor.fetchone()
+            
+            if resultado:
+                id_pro_empleado = resultado[0]
+                # Insertar el registro de tiempo
+                sql_insert = """INSERT INTO registroTiempo (Id_pro_empleado, 
+                            horas_trabajadas, fecha) VALUES (%s, %s, %s)"""
+                cursor.execute(sql_insert, (id_pro_empleado, horas, fecha))
+                mydb.commit()
+                print("Horas registradas exitosamente")
+            else:
+                print("El empleado no está asignado a este proyecto")
+                
+        except Exception as e:
+            print(f"Error al registrar horas: {str(e)}")
         

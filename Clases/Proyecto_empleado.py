@@ -1,3 +1,4 @@
+import mysql.connector
 from Empleado import empleado
 from Proyecto import proyecto
 
@@ -56,11 +57,62 @@ class proyectoEmpleado(empleado, proyecto):
         return f"Proyecto-Empleado: ID {self._Id_pro_empleado} - Proyecto: {self._Nombre} - Empleado ID: {self._Id_empleado}"
 
 
-    def asignar_empleado_proyecto(self):
-        id_emp = int(input("Ingrese el ID del empleado: "))
-        id_proy = int(input("Ingrese el ID del proyecto: "))
-        if id_emp in self.empleados and id_proy in self.proyectos:
-            # Aquí se debería crear una instancia de proyectoEmpleado
-            print("Empleado asignado al proyecto con éxito.")
-        else:
-            print("Empleado o proyecto no encontrado.")
+    def asignar_empleado_proyecto(self, mydb):
+        try:
+            # Mostrar empleados disponibles
+            print("\n--- Empleados disponibles ---")
+            cursor = mydb.cursor(dictionary=True)
+            cursor.execute("SELECT id_empleado, nombre FROM empleado WHERE estado_empleado = 1")
+            empleados = cursor.fetchall()
+            
+            if not empleados:
+                print("No hay empleados disponibles.")
+                return
+                
+            for emp in empleados:
+                print(f"ID: {emp['id_empleado']} - Nombre: {emp['nombre']}")
+                
+            # Mostrar proyectos disponibles
+            print("\n--- Proyectos disponibles ---")
+            cursor.execute("SELECT id_proyecto, nombre FROM proyecto")
+            proyectos = cursor.fetchall()
+            
+            if not proyectos:
+                print("No hay proyectos disponibles.")
+                return
+                
+            for proy in proyectos:
+                print(f"ID: {proy['id_proyecto']} - Nombre: {proy['nombre']}")
+                
+            # Solicitar IDs
+            id_empleado = int(input("\nIngrese el ID del empleado: "))
+            id_proyecto = int(input("Ingrese el ID del proyecto: "))
+            
+            # Verificar si la asignación ya existe
+            cursor.execute("""
+                SELECT * FROM proyectoEmpleado 
+                WHERE Id_empleado = %s AND Id_proyecto = %s
+            """, (id_empleado, id_proyecto))
+            
+            if cursor.fetchone():
+                print("Este empleado ya está asignado a este proyecto.")
+                return
+                
+            # Realizar la asignación
+            cursor.execute("""
+                INSERT INTO proyectoEmpleado (Id_proyecto, Id_empleado) 
+                VALUES (%s, %s)
+            """, (id_proyecto, id_empleado))
+            
+            mydb.commit()
+            print("Empleado asignado al proyecto exitosamente.")
+            
+        except ValueError:
+            print("Por favor, ingrese IDs válidos (números enteros)")
+        except mysql.connector.Error as err:
+            print(f"Error de base de datos: {err}")
+        except Exception as e:
+            print(f"Error al asignar empleado al proyecto: {str(e)}")
+        finally:
+            if cursor:
+                cursor.close()

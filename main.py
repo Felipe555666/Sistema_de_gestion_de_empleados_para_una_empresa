@@ -145,6 +145,7 @@ class SistemaGestionEmpleados:
                     print(resultado[1])  # Mostrar el mensaje de resultado
                 else:
                     print("Error: No hay conexión a la base de datos")
+                    
             elif opcion == "2":
                 try:
                     # Verificar la conexión
